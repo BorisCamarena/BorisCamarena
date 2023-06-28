@@ -1,0 +1,322 @@
+# Archivo main.py
+
+import pandas as pd 
+import numpy as np 
+from pso_clustering import PSOClusteringSwarm
+
+# Importacion de librerias y archivo.
+
+plot = TRUE
+
+# Se leen los datos de la hoja de datos de pandas.
+
+data_points = pd.read_csv('iris.txt',sep = ',', header = None )
+
+# Se hace el arreglo de numpy ( data frame a numpy )
+
+clusters = data_points[4].values
+
+# Se aplica el metodo drop de pandas como ( pd ) en el codigo.
+
+data_points = data_points.drop([4].,axis = 1)
+
+# Se usan las columnas 0 y 1 como coordenadas ( x , y ) para hacer una grafica en 2D.
+
+if plot:
+    
+    data_points = data_points[[ 0 , 1 ]]
+
+# Conertimos el arreglo numpy a 2D.
+
+data_points = data_points.values 
+
+# Se implementa el algoritmo PSO-Clustering.
+
+pso = PSOClusteringSwarm(n_cluesters = 3, n_particles = 30, data = data_points, hybrid = TRUE )
+
+pso.start(iteration = 1000, plot = plot )
+
+
+# Se hace un mapeo de los colores de los elementos de los grupos.
+
+mapping = {'iris-setosa':0,'Iris-vesicolor':1,'Iris-virginica':2}
+
+clusters = np.array( [ mapping[ x ] for x in clusters ] )
+
+# ------------------------------------------------------------------------------------------------------------------
+
+# Archivo particle.py
+
+import numpy as np 
+from sklearn.cluster import kMeans 
+import matplotlib.pyplot as plt 
+
+# Importamos librerias y archivos para el funcionamiento del codigo.
+
+# Creamos la clase Particula.
+
+class Paticle:
+    
+    def __init__(self, n_clusters, data, use_kmeans = TRUE, w = 0.72 , c1 = 1.49 ,  c2 = 1.49 ):
+        
+        self.n_clusters = n_clusters
+        
+        if use_kmeans:
+            
+            kmeans = kMeans( n_clusters = self.n_clusters )
+            
+            kmeans.fit( data )
+            
+            self.centroids_pos = kmeans.cluster_centers_
+            
+        else:
+            
+            self.centroids_pos = data[ np.random.choice( list( range( len(data) ) ) ,self.n_clusters ) ]
+            
+# Cada argumento tiene un centroide que es un punto que lo representa y se le asignan k datos aleatorios a 
+
+# k centroides.
+
+self.pb_val = np.inf
+
+# Se mejora la posicion para cada centroide.
+
+self.pb_pos = self.centroids_pos.copy( )
+
+self.velocity = np.zeros_like( self,centroids_pos )
+
+# Agrupamiento de datos.
+
+self.pb_clustering = None
+
+# paraametros del PSO ( optimizacion usando ejambres de particulas ).
+
+self.w = w 
+
+self.c1 = c1
+
+self.c2 = c2
+
+# Creamos la funcion.
+
+def update_pb( self,data: np.ndarray ):
+    
+    # Encuentra los datos como puntos que petenecen a los Agrupamientos utilizando
+    
+    # la distancia entre centroides.
+    
+    distances = self._get_distances( data = data )
+    
+# Genera la posicion de un nuevo centroide para el id del agrupamiento que falta.
+
+# Usamos un ciclo while.
+
+     while len( clusters_ids ) != self.n_clusters:
+         
+         deleted_clusters = np.where( np.isin( np.arange(self.n_clusters), clusters_ids ) == False )[ 0 ]
+         
+         self.centroids_pos[ deleted_clusters ] = data[ np.random.choice( list( range( len( data ) ) ) , len( deleted_clusters ) ) ] 
+         
+         distances = self._get_distances( data = data )
+         
+         clusters = np.argmin( distances, axis = 0 )
+         
+         clusters_ids = np.unique( clusters )
+         
+    # Creamos la funcion velocity.
+    
+    def update_velocity( self, gb_pos: np.ndarray ):
+        
+        self.velocity = self.w * self.velocity + \
+        
+                        self.c1 * np.random.random( ) * ( self_pb_pos - self.centroids_pos ) + \
+                        
+                        self.c2 * np.random.random( ) * ( gb_pos - self.centroids_pos )
+    
+    # Creamos la funcion de mover centroides.
+    
+    def move_centroids( self, gb_pos ):
+        
+        self.update_velocity( gb_pos = gb_pos )
+        
+        new_pos = self.centroids_pos +self.velocity
+        
+        self.centroids_pos = new_pos.copy( )
+        
+    # Creamos la funcion obtener distancias entre centroides.
+    
+    def _get_distances( self, data: np.ndarray ) -> np.ndarray :
+        
+        distances = [ ] 
+        
+        for centroid in self.centroids_pos :
+            
+            # Se calcula la distancia euclideana.
+            
+            d = np.linalg.norm( data - centroid , axis = 1 )
+            
+            distances.append( d )
+        
+        distances = np.array( distances ) 
+        
+        return distances
+        
+        
+    def _fitness_function( self,clusters: np.ndarray , distances : np.ndarray ) -> float :
+        
+        # Evalua la funcion de amplitud.
+        
+        # i indice de la particula.
+        
+        # j indice de agrupamiento de la particula.
+        
+        # inicializamos a j = 0.0
+        
+        j = 0.0
+        
+        for i in range( self.n_clusters ) :
+            
+            p = np.where( clusters == i )[ 0 ]
+            
+            if len( p ) :
+                
+                d = sum( distances[ i ][ p ] )
+                
+                d /= len( p )
+                
+                j += d
+                
+        j /= self.n_clusters
+        
+        return j         
+
+
+        # ------------------------------------------------------------------------------------------------------------------
+
+
+        # Archivo pso_Clustering.py 
+
+        
+        # Clase de optimizacion usando enjambre de particulas.
+
+# Importamos librerias y archivos de los codigos para su funcionamiento.
+
+form typing import Tuple 
+
+import numpy as np
+
+import matplotlib.pyplot as plt 
+
+from particle import Particle 
+
+
+# Creamos la clase PSO - Clustering.
+
+class PSOClusteringSwarm :
+    
+    def __init__( self, n_clusters: int , n_particles: int , data: np.ndarray , hybrid = True, w = 0.72 ,  c1 =  1.49, c2 = 1.49 ) :
+        
+        # Se inicializa el enjambre.
+        
+        self.n_clusters = n_clusters
+        
+        self.n_particles = n_particles
+        
+        self.data = data 
+        
+        self.particles = [ ] 
+        
+        # Se guarda el enjambre.
+        
+        self.gb_pos = None
+        
+        self.gb_val = np.inf
+        
+        # Se tiene el mejor agrupamiento.
+        
+        self.gb_clustering = None 
+        
+        self._generate_particles( hybrid, w , c1 , c2 )
+        
+        def _print_initial( self , iteration , plot ) : 
+            
+            print( '*** Inicializando Swarm con ', self.n_particles, ' Pariculas ' , self.clusters , ' Clusters con' , iteration , ' Maxima iteracion con su grafica = ' , plot , '***' )
+        
+            print( ' Data = ' , self.data.shape[ 0 ] , 'Puntos en ' , self.data.shape[ 1 ] , 'Dimension')
+            
+        def _generate_particles(self, hybrid: bool , w:float, c1: float , c2: float ) :
+            
+            # Genera Pariculas con k agrupamientos y Puntos en t dimensiones.
+            
+            for i in range(self.n_particles):
+                
+                particle = Particle(n_clusters = self.n_clusters , data = self.data, use_kmeans = hybrid , w = w , c1 = c1 , c2 = c2 )
+                
+                self.particles.append(particle)
+                
+        def update_gb( self , particle ) :
+            
+            if particle.pb_val < self.gb_val :
+                
+                self.gb_val = particle.pb_val
+                
+                self.gb_pos = particle.pb_pos.copy( )
+                
+                self.gb_clustering = particle.pb_clustering.copy( )
+                
+        def start( self , iteration = 1000 , plot = False ) -> Tuple[ np.ndarray , float ] :
+            
+            # Se grafican los agrupamientos globales.
+            
+            # Numero de iteraciones maximas.
+            
+            self._print_initial( iteration, plot )
+            
+            # Inicializamos lista sin elementos.
+            
+            progress = [ ]
+            
+            for i in range( iteration ) :
+                
+                if i % 200 == 0 :
+                    
+                    Clusters = self.gb_clustering
+                    
+                    print( ' iteration ' , i , ' GB = ' ,  self.gb_val )
+                    
+                    print( ' best Clusters so far = ' , Clusters )
+                    
+                    if plot:
+                        
+                        centroids = self.gb_pos
+                        
+                        if Clusters is not None : 
+                            
+                            plt.scatter( self.data[ : , 0 ] , self.data[ : , 1 ] , c = clusters , cmap = ' viridis ' )
+                            
+                            plt.scatter( centroids[ : , 0 ] , centroids[ : , 1 ] , c = ' black ' , s = 200 , alpha = 0.5 )
+                            
+                            plt.show( )
+                            
+                        else : 
+                            
+                            plt.scatter( self.data[ : , 0 ] , self.data[ : , 1 ] )
+                            
+                            plt.show( ) 
+                
+                for particle in self.particles : 
+                    
+                    particle.update_gb( data = self.data )
+                    
+                    self.update_gb( particle = particle )
+                    
+                for particle in self.particles : 
+                    
+                    particle.move_centroids( gb_pos = self.gb_pos )
+                
+                progress.append( [ self.gb_pos , self.gb_clustering , self.gb_val ] ) 
+                
+            print( ' Finalizamos ')
+            
+            return self.gb_clustering , self.gb_val
+
